@@ -1,0 +1,26 @@
+meta {
+  name: Invalid credentials are rejected
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  { "username": "student", "password": "wrong" }
+}
+
+tests {
+  test("invalid login returns 401 and no token", function () {
+    expect(res.status).to.equal(401);
+    expect(res.body.error).to.equal("Invalid login");
+    expect(res.body).not.to.have.property("accessToken");
+  });
+}
