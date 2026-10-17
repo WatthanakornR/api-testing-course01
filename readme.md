@@ -153,4 +153,39 @@ Your task is to create a comprehensive Bruno collection that validates the entir
 4.  **Send the GitHub link** to your instructor via Discord.
 
 ---
+
+## ✅ Completed audit
+
+The [Auntie Som Lab collection](auntie-som-noodle-api-test/) contains 13 ordered requests and 14 automated tests. Its `local` environment supplies `baseUrl`; the login post-response script stores `accessToken` as a secret environment variable, and the create-order script stores `orderId` as a runtime variable. The tests also save menu prices and starting stock as runtime variables, then compare API responses against those values. Bruno never writes the token value into the collection file.
+
+### Bugs found
+
+| Business rule | Observed behavior | Bruno test that catches it |
+| --- | --- | --- |
+| An order for one 50-baht noodle should cost 50 baht; no discount rule is specified. | `POST /orders` returns 45 baht. `GET /orders/<orderId>` repeats the incorrect total. | `07-create-order.bru`, `08-get-order.bru` |
+| An unknown order should return HTTP 404. | `GET /orders/ORD-does-not-exist` returns HTTP 200 with an error body. | `09-unknown-order.bru` |
+| A customer cannot buy more portions than are in stock; a rejected order must not change stock. | Ordering two rice portions when only one is available returns HTTP 200 and changes stock from 1 to -1. | `10-too-many.bru`, `11-stock-after-rejection.bru` |
+| Order quantity must be positive. | Zero and negative quantities both create orders; a negative quantity also increases stock. | `12-zero-quantity.bru`, `13-negative-quantity.bru` |
+
+The collection also checks menu data, successful and failed login, token reuse, missing and invalid bearer tokens, unknown items, and retrieval of a created order. Those checks pass on the supplied backend.
+
+### Run the audit
+
+Start with a **fresh API process** for each full collection run because the backend keeps stock and orders in memory. Leave the process running in one terminal:
+
+```bash
+python3 -m pip install flask
+python3 auntie-som-noodle-api/app.py
+```
+
+In another terminal, install the [Bruno CLI](https://docs.usebruno.com/bru-cli/installation), then run from the collection folder:
+
+```bash
+cd auntie-som-noodle-api-test
+bru run --env local --noproxy
+```
+
+The local environment uses `http://127.0.0.1:5000` to reach Flask reliably on macOS. Change `baseUrl` in `environments/local.bru` if the server uses another address. Run requests in order; a full run changes stock. The CLI should exit with failure while the backend bugs remain. On the supplied backend, the verified result is **7 passing and 7 failing tests**. These failures are the audit findings, not a reason to change `app.py` for this assignment.
+
+---
 *Good luck. Auntie Som is counting on you!* 🍜🔥
