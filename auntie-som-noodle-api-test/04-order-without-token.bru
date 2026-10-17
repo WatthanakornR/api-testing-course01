@@ -1,0 +1,26 @@
+meta {
+  name: Order without token is rejected
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  { "itemId": 1, "quantity": 1 }
+}
+
+tests {
+  test("missing authorization returns 401", function () {
+    expect(res.status).to.equal(401);
+    expect(res.body.error).to.equal("Unauthorized");
+    expect(res.body).not.to.have.property("orderId");
+  });
+}

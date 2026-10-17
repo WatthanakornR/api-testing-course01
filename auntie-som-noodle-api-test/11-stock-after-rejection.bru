@@ -1,0 +1,16 @@
+meta {
+  name: Rejected order preserves stock
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/menu
+}
+
+tests {
+  test("rejected overstock order leaves rice stock unchanged", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.find(item => item.id === 2).stock).to.equal(Number(bru.getVar("riceStock")));
+  });
+}

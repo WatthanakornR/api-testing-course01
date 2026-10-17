@@ -1,0 +1,26 @@
+meta {
+  name: Zero quantity is rejected
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+}
+
+headers {
+  content-type: application/json
+  authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  { "itemId": 1, "quantity": 0 }
+}
+
+tests {
+  test("zero quantity cannot create an order", function () {
+    expect(res.status).to.equal(400);
+    expect(res.body).not.to.have.property("orderId");
+  });
+}

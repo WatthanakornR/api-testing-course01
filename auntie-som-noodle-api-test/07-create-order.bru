@@ -1,0 +1,38 @@
+meta {
+  name: Valid order has correct total price
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+}
+
+headers {
+  content-type: application/json
+  authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  { "itemId": 1, "quantity": 1 }
+}
+
+script:post-response {
+  if (res.status === 200 && typeof res.body.orderId === "string") {
+    bru.setVar("orderId", res.body.orderId);
+  }
+}
+
+tests {
+  test("valid order is created and saved for retrieval", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.orderId).to.match(/^ORD-[a-f0-9]{6}$/);
+    expect(res.body.status).to.equal("created");
+    expect(bru.getVar("orderId")).to.equal(res.body.orderId);
+  });
+
+  test("total equals menu price times quantity, with no stated discount", function () {
+    expect(res.body.totalPrice).to.equal(Number(bru.getVar("noodlePrice")) * 1);
+  });
+}

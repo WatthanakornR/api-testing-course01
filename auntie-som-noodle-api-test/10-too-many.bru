@@ -1,0 +1,27 @@
+meta {
+  name: Quantity above stock is rejected
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+}
+
+headers {
+  content-type: application/json
+  authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  { "itemId": 2, "quantity": 2 }
+}
+
+tests {
+  test("cannot buy two portions when only one remains", function () {
+    expect(Number(bru.getVar("riceStock"))).to.equal(1);
+    expect(res.status).to.equal(400);
+    expect(res.body).not.to.have.property("orderId");
+  });
+}

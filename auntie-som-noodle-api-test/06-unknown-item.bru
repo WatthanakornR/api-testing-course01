@@ -1,0 +1,27 @@
+meta {
+  name: Unknown item is rejected
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+}
+
+headers {
+  content-type: application/json
+  authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  { "itemId": 999, "quantity": 1 }
+}
+
+tests {
+  test("unknown item returns 404 and no order", function () {
+    expect(res.status).to.equal(404);
+    expect(res.body.error).to.equal("Item not found");
+    expect(res.body).not.to.have.property("orderId");
+  });
+}

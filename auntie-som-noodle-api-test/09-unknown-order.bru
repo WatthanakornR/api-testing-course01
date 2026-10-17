@@ -1,0 +1,16 @@
+meta {
+  name: Unknown order returns 404
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/orders/ORD-does-not-exist
+}
+
+tests {
+  test("missing order returns 404", function () {
+    expect(res.status).to.equal(404);
+    expect(res.body.error).to.equal("Order not found");
+  });
+}
